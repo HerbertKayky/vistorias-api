@@ -1,0 +1,99 @@
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  INSPECTOR
+  USER
+}
+
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      Role     @default(USER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relacionamentos
+  vistorias Vistoria[]
+
+  @@map("users")
+}
+
+model Vehicle {
+  id          String   @id @default(cuid())
+  nome        String
+  placa       String   @unique
+  marca       String
+  modelo      String
+  ano         Int
+  proprietario String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relacionamentos
+  vistorias   Vistoria[]
+
+  @@map("vehicles")
+}
+
+model Vistoria {
+  id          String      @id @default(cuid())
+  titulo      String
+  descricao   String?
+  status      StatusVistoria @default(PENDENTE)
+  dataInicio  DateTime
+  dataFim     DateTime?
+  tempoGasto  Int?        // em minutos
+  observacoes String?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  // Relacionamentos
+  inspectorId String
+  inspector   User        @relation(fields: [inspectorId], references: [id])
+
+  vehicleId   String
+  vehicle     Vehicle     @relation(fields: [vehicleId], references: [id])
+
+  checklistItems ChecklistItem[]
+
+  @@map("vistorias")
+}
+
+model ChecklistItem {
+  id          String   @id @default(cuid())
+  key         String
+  status      ChecklistStatus @default(NAO_APLICAVEL)
+  comment     String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  vistoriaId  String
+  vistoria    Vistoria @relation(fields: [vistoriaId], references: [id])
+
+  @@map("checklist_items")
+}
+
+enum StatusVistoria {
+  PENDENTE
+  EM_ANDAMENTO
+  APROVADA
+  REPROVADA
+  CANCELADA
+}
+
+enum ChecklistStatus {
+  APROVADO
+  REPROVADO
+  NAO_APLICAVEL
+}
