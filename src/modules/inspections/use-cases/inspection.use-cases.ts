@@ -1,16 +1,25 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { PrismaService } from '../../../shared/prisma/prisma.service';
-import { CreateInspectionDto, UpdateInspectionDto } from '../dto/inspection.dto';
-import { InspectionFiltersDto, UpdateStatusDto } from '../dto/inspection-filters.dto';
 import { InspectionResponse } from '../../../shared/interfaces/vehicle.interface';
 import { StatusVistoria } from '../../../shared/types/status-vistoria.type';
+import { ChecklistStatus } from '../../../shared/types/checklist-status.type';
 
 @Injectable()
 export class CreateInspectionUseCase {
   constructor(private readonly prisma: PrismaService) {}
 
-  async execute(createInspectionDto: CreateInspectionDto): Promise<InspectionResponse> {
-    const { titulo, descricao, vehicleId, inspectorId, items } = createInspectionDto;
+  async execute(data: {
+    titulo: string;
+    descricao: string;
+    vehicleId: string;
+    inspectorId: string;
+    items: Array<{ key: string; status: ChecklistStatus; comment?: string }>;
+  }): Promise<InspectionResponse> {
+    const { titulo, descricao, vehicleId, inspectorId, items } = data;
 
     // Verificar se o veículo existe
     const vehicle = await this.prisma.vehicle.findUnique({
@@ -39,7 +48,7 @@ export class CreateInspectionUseCase {
         inspectorId,
         dataInicio: new Date(),
         checklistItems: {
-          create: items.map(item => ({
+          create: items.map((item) => ({
             key: item.key,
             status: item.status,
             comment: item.comment,
@@ -67,7 +76,13 @@ export class CreateInspectionUseCase {
 export class GetInspectionsUseCase {
   constructor(private readonly prisma: PrismaService) {}
 
-  async execute(filters?: InspectionFiltersDto): Promise<InspectionResponse[]> {
+  async execute(filters?: {
+    status?: StatusVistoria;
+    inspectorId?: string;
+    from?: string;
+    to?: string;
+    search?: string;
+  }): Promise<InspectionResponse[]> {
     const { status, inspectorId, from, to, search } = filters || {};
 
     // Construir filtros dinâmicos
@@ -172,8 +187,16 @@ export class GetInspectionByIdUseCase {
 export class UpdateInspectionUseCase {
   constructor(private readonly prisma: PrismaService) {}
 
-  async execute(id: string, updateInspectionDto: UpdateInspectionDto): Promise<InspectionResponse> {
-    const { titulo, descricao, observacoes, items } = updateInspectionDto;
+  async execute(
+    id: string,
+    data: {
+      titulo?: string;
+      descricao?: string;
+      observacoes?: string;
+      items?: Array<{ key: string; status: ChecklistStatus; comment?: string }>;
+    },
+  ): Promise<InspectionResponse> {
+    const { titulo, descricao, observacoes, items } = data;
 
     // Verificar se a vistoria existe
     const existingVistoria = await this.prisma.vistoria.findUnique({
@@ -200,7 +223,7 @@ export class UpdateInspectionUseCase {
         ...(observacoes && { observacoes }),
         ...(items && {
           checklistItems: {
-            create: items.map(item => ({
+            create: items.map((item) => ({
               key: item.key,
               status: item.status,
               comment: item.comment,
@@ -243,18 +266,25 @@ export class CompleteInspectionUseCase {
     }
 
     if (existingVistoria.status !== StatusVistoria.EM_ANDAMENTO) {
-      throw new BadRequestException('Apenas vistorias em andamento podem ser finalizadas');
+      throw new BadRequestException(
+        'Apenas vistorias em andamento podem ser finalizadas',
+      );
     }
 
     // Calcular status baseado no checklist
     const checklistItems = existingVistoria.checklistItems;
-    const reprovados = checklistItems.filter(item => item.status === 'REPROVADO').length;
-    const status = reprovados > 0 ? StatusVistoria.REPROVADA : StatusVistoria.APROVADA;
+    const reprovados = checklistItems.filter(
+      (item) => item.status === 'REPROVADO',
+    ).length;
+    const status =
+      reprovados > 0 ? StatusVistoria.REPROVADA : StatusVistoria.APROVADA;
 
     // Calcular tempo gasto
     const dataInicio = existingVistoria.dataInicio;
     const dataFim = new Date();
-    const tempoGasto = Math.round((dataFim.getTime() - dataInicio.getTime()) / (1000 * 60)); // em minutos
+    const tempoGasto = Math.round(
+      (dataFim.getTime() - dataInicio.getTime()) / (1000 * 60),
+    ); // em minutos
 
     // Atualizar vistoria
     const vistoria = await this.prisma.vistoria.update({
@@ -286,8 +316,11 @@ export class CompleteInspectionUseCase {
 export class UpdateInspectionStatusUseCase {
   constructor(private readonly prisma: PrismaService) {}
 
-  async execute(id: string, updateStatusDto: UpdateStatusDto): Promise<InspectionResponse> {
-    const { status } = updateStatusDto;
+  async execute(
+    id: string,
+    data: { status: StatusVistoria },
+  ): Promise<InspectionResponse> {
+    const { status } = data;
 
     // Verificar se a vistoria existe
     const existingVistoria = await this.prisma.vistoria.findUnique({
@@ -300,8 +333,15 @@ export class UpdateInspectionStatusUseCase {
 
     // Validar transições de status
     const validTransitions: Record<StatusVistoria, StatusVistoria[]> = {
-      [StatusVistoria.PENDENTE]: [StatusVistoria.EM_ANDAMENTO, StatusVistoria.CANCELADA],
-      [StatusVistoria.EM_ANDAMENTO]: [StatusVistoria.APROVADA, StatusVistoria.REPROVADA, StatusVistoria.CANCELADA],
+      [StatusVistoria.PENDENTE]: [
+        StatusVistoria.EM_ANDAMENTO,
+        StatusVistoria.CANCELADA,
+      ],
+      [StatusVistoria.EM_ANDAMENTO]: [
+        StatusVistoria.APROVADA,
+        StatusVistoria.REPROVADA,
+        StatusVistoria.CANCELADA,
+      ],
       [StatusVistoria.APROVADA]: [StatusVistoria.CANCELADA],
       [StatusVistoria.REPROVADA]: [StatusVistoria.CANCELADA],
       [StatusVistoria.CANCELADA]: [],
@@ -309,14 +349,22 @@ export class UpdateInspectionStatusUseCase {
 
     const currentStatus = existingVistoria.status as StatusVistoria;
     if (!validTransitions[currentStatus]?.includes(status)) {
-      throw new BadRequestException(`Transição de status inválida: ${currentStatus} → ${status}`);
+      throw new BadRequestException(
+        `Transição de status inválida: ${currentStatus} → ${status}`,
+      );
     }
 
     // Se está finalizando a vistoria, calcular tempo gasto
     let updateData: any = { status };
-    if (status === StatusVistoria.APROVADA || status === StatusVistoria.REPROVADA) {
+    if (
+      status === StatusVistoria.APROVADA ||
+      status === StatusVistoria.REPROVADA
+    ) {
       const dataFim = new Date();
-      const tempoGasto = Math.round((dataFim.getTime() - existingVistoria.dataInicio.getTime()) / (1000 * 60));
+      const tempoGasto = Math.round(
+        (dataFim.getTime() - existingVistoria.dataInicio.getTime()) /
+          (1000 * 60),
+      );
       updateData.dataFim = dataFim;
       updateData.tempoGasto = tempoGasto;
     }
@@ -357,8 +405,13 @@ export class DeleteInspectionUseCase {
     }
 
     // Verificar se pode ser excluída (apenas pendentes ou canceladas)
-    if (existingVistoria.status !== StatusVistoria.PENDENTE && existingVistoria.status !== StatusVistoria.CANCELADA) {
-      throw new BadRequestException('Apenas vistorias pendentes ou canceladas podem ser excluídas');
+    if (
+      existingVistoria.status !== StatusVistoria.PENDENTE &&
+      existingVistoria.status !== StatusVistoria.CANCELADA
+    ) {
+      throw new BadRequestException(
+        'Apenas vistorias pendentes ou canceladas podem ser excluídas',
+      );
     }
 
     // Excluir checklist items primeiro

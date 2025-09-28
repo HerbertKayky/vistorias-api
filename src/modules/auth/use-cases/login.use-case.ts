@@ -1,8 +1,10 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PrismaService } from '../../../shared/prisma/prisma.service';
-import { LoginDto } from '../dto/login.dto';
 import { JwtService } from '@nestjs/jwt';
-import { AuthTokens, JwtPayload } from '../../../shared/interfaces/auth.interface';
+import {
+  AuthTokens,
+  JwtPayload,
+} from '../../../shared/interfaces/auth.interface';
 import { Role } from '../../../shared/types/role.type';
 import * as bcrypt from 'bcryptjs';
 
@@ -13,8 +15,11 @@ export class LoginUseCase {
     private readonly jwtService: JwtService,
   ) {}
 
-  async execute(loginDto: LoginDto): Promise<AuthTokens> {
-    const { email, password } = loginDto;
+  async execute(data: {
+    email: string;
+    password: string;
+  }): Promise<AuthTokens> {
+    const { email, password } = data;
 
     // Buscar usuário
     const user = await this.prisma.user.findUnique({

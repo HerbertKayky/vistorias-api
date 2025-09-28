@@ -1,8 +1,10 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PrismaService } from '../../../shared/prisma/prisma.service';
-import { RefreshTokenDto } from '../dto/refresh-token.dto';
 import { JwtService } from '@nestjs/jwt';
-import { AuthTokens, JwtPayload } from '../../../shared/interfaces/auth.interface';
+import {
+  AuthTokens,
+  JwtPayload,
+} from '../../../shared/interfaces/auth.interface';
 import { Role } from '../../../shared/types/role.type';
 
 @Injectable()
@@ -12,8 +14,8 @@ export class RefreshTokenUseCase {
     private readonly jwtService: JwtService,
   ) {}
 
-  async execute(refreshTokenDto: RefreshTokenDto): Promise<AuthTokens> {
-    const { refreshToken } = refreshTokenDto;
+  async execute(data: { refreshToken: string }): Promise<AuthTokens> {
+    const { refreshToken } = data;
 
     try {
       // Verificar e decodificar o refresh token
@@ -35,8 +37,12 @@ export class RefreshTokenUseCase {
         role: user.role as Role,
       };
 
-      const newAccessToken = this.jwtService.sign(newPayload, { expiresIn: '15m' });
-      const newRefreshToken = this.jwtService.sign(newPayload, { expiresIn: '7d' });
+      const newAccessToken = this.jwtService.sign(newPayload, {
+        expiresIn: '15m',
+      });
+      const newRefreshToken = this.jwtService.sign(newPayload, {
+        expiresIn: '7d',
+      });
 
       return {
         accessToken: newAccessToken,

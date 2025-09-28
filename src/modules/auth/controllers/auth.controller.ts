@@ -1,7 +1,4 @@
 import { Controller, Post, Body, HttpCode, HttpStatus } from '@nestjs/common';
-import { RegisterDto } from '../dto/register.dto';
-import { LoginDto } from '../dto/login.dto';
-import { RefreshTokenDto } from '../dto/refresh-token.dto';
 import { RegisterUseCase } from '../use-cases/register.use-case';
 import { LoginUseCase } from '../use-cases/login.use-case';
 import { RefreshTokenUseCase } from '../use-cases/refresh-token.use-case';
@@ -25,19 +22,29 @@ export class AuthController {
   ) {}
 
   @Post('register')
-  async register(@Body() registerDto: RegisterDto): Promise<Omit<User, 'password'>> {
-    return this.registerUseCase.execute(registerDto);
+  async register(
+    @Body()
+    body: {
+      name: string;
+      email: string;
+      password: string;
+      role?: string;
+    },
+  ): Promise<Omit<User, 'password'>> {
+    return this.registerUseCase.execute(body);
   }
 
   @Post('login')
   @HttpCode(HttpStatus.OK)
-  async login(@Body() loginDto: LoginDto): Promise<AuthTokens> {
-    return this.loginUseCase.execute(loginDto);
+  async login(
+    @Body() body: { email: string; password: string },
+  ): Promise<AuthTokens> {
+    return this.loginUseCase.execute(body);
   }
 
   @Post('refresh')
   @HttpCode(HttpStatus.OK)
-  async refresh(@Body() refreshTokenDto: RefreshTokenDto): Promise<AuthTokens> {
-    return this.refreshTokenUseCase.execute(refreshTokenDto);
+  async refresh(@Body() body: { refreshToken: string }): Promise<AuthTokens> {
+    return this.refreshTokenUseCase.execute(body);
   }
 }

@@ -1,26 +1,26 @@
-import { 
-  Controller, 
-  Get, 
-  Post, 
-  Put, 
-  Delete, 
-  Body, 
-  Param, 
+import {
+  Controller,
+  Get,
+  Post,
+  Put,
+  Delete,
+  Body,
+  Param,
   UseGuards,
   HttpCode,
-  HttpStatus
+  HttpStatus,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../../../shared/guards/jwt-auth.guard';
 import { RolesGuard } from '../../../shared/guards/roles.guard';
 import { Roles } from '../../../shared/decorators/roles.decorator';
 import { Role } from '../../../shared/types/role.type';
-import { CreateVehicleDto, UpdateVehicleDto } from '../dto/vehicle.dto';
-import { 
-  CreateVehicleUseCase, 
-  GetVehiclesUseCase, 
-  GetVehicleByIdUseCase, 
-  UpdateVehicleUseCase, 
-  DeleteVehicleUseCase 
+import {
+  CreateVehicleUseCase,
+  GetVehiclesUseCase,
+  GetVehicleByIdUseCase,
+  GetVehicleWithVistoriasCountUseCase,
+  UpdateVehicleUseCase,
+  DeleteVehicleUseCase,
 } from '../use-cases/vehicle.use-cases';
 
 @Controller('vehicles')
@@ -31,13 +31,24 @@ export class VehiclesController {
     private readonly createVehicleUseCase: CreateVehicleUseCase,
     private readonly getVehiclesUseCase: GetVehiclesUseCase,
     private readonly getVehicleByIdUseCase: GetVehicleByIdUseCase,
+    private readonly getVehicleWithVistoriasCountUseCase: GetVehicleWithVistoriasCountUseCase,
     private readonly updateVehicleUseCase: UpdateVehicleUseCase,
     private readonly deleteVehicleUseCase: DeleteVehicleUseCase,
   ) {}
 
   @Post()
-  async create(@Body() createVehicleDto: CreateVehicleDto) {
-    return this.createVehicleUseCase.execute(createVehicleDto);
+  async create(
+    @Body()
+    body: {
+      nome: string;
+      placa: string;
+      marca: string;
+      modelo: string;
+      ano: number;
+      proprietario: string;
+    },
+  ) {
+    return this.createVehicleUseCase.execute(body);
   }
 
   @Get()
@@ -50,9 +61,25 @@ export class VehiclesController {
     return this.getVehicleByIdUseCase.execute(id);
   }
 
+  @Get(':id/count')
+  async findOneWithCount(@Param('id') id: string) {
+    return this.getVehicleWithVistoriasCountUseCase.execute(id);
+  }
+
   @Put(':id')
-  async update(@Param('id') id: string, @Body() updateVehicleDto: UpdateVehicleDto) {
-    return this.updateVehicleUseCase.execute(id, updateVehicleDto);
+  async update(
+    @Param('id') id: string,
+    @Body()
+    body: {
+      nome?: string;
+      placa?: string;
+      marca?: string;
+      modelo?: string;
+      ano?: number;
+      proprietario?: string;
+    },
+  ) {
+    return this.updateVehicleUseCase.execute(id, body);
   }
 
   @Delete(':id')
@@ -61,4 +88,3 @@ export class VehiclesController {
     await this.deleteVehicleUseCase.execute(id);
   }
 }
-

@@ -1,6 +1,5 @@
 import { Injectable, ConflictException } from '@nestjs/common';
 import { PrismaService } from '../../../shared/prisma/prisma.service';
-import { RegisterDto } from '../dto/register.dto';
 // Tipo local para evitar problemas de import
 type User = {
   id: string;
@@ -17,8 +16,13 @@ import * as bcrypt from 'bcryptjs';
 export class RegisterUseCase {
   constructor(private readonly prisma: PrismaService) {}
 
-  async execute(registerDto: RegisterDto): Promise<Omit<User, 'password'>> {
-    const { name, email, password, role = 'USER' } = registerDto;
+  async execute(data: {
+    name: string;
+    email: string;
+    password: string;
+    role?: string;
+  }): Promise<Omit<User, 'password'>> {
+    const { name, email, password, role = 'ADMIN' } = data;
 
     // Verificar se o usuário já existe
     const existingUser = await this.prisma.user.findUnique({

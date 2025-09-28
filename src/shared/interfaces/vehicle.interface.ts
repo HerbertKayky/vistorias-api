@@ -13,29 +13,6 @@ type Vehicle = {
   updatedAt: Date;
 };
 
-export interface VehicleDto {
-  nome: string;
-  placa: string;
-  marca: string;
-  modelo: string;
-  ano: number;
-  proprietario: string;
-}
-
-export interface ChecklistItemDto {
-  key: string;
-  status: ChecklistStatus;
-  comment?: string;
-}
-
-export interface InspectionDto {
-  titulo: string;
-  descricao?: string;
-  vehicleId: string;
-  inspectorId: string;
-  items: ChecklistItemDto[];
-}
-
 export interface InspectionResponse {
   id: string;
   titulo: string;
@@ -58,4 +35,3 @@ export interface InspectionResponse {
     comment?: string;
   }>;
 }
-

@@ -1,98 +1,348 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# 🚗 API de Vistorias EPTA
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+API desenvolvida em NestJS para gerenciamento de vistorias de veículos, com sistema de autenticação JWT e controle de acesso por roles.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## 📋 Funcionalidades
 
-## Description
+- **Autenticação JWT** com refresh token
+- **Controle de acesso** por roles (Admin, Inspetor, Usuário)
+- **Gestão de veículos** (CRUD completo)
+- **Gestão de vistorias** com checklist de itens
+- **Relatórios** com métricas e exportação CSV
+- **Sistema de status** para vistorias (Pendente, Em Andamento, Aprovada, Reprovada, Cancelada)
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## 🛠️ Tecnologias
 
-## Project setup
+- **NestJS** - Framework Node.js
+- **Prisma** - ORM para banco de dados
+- **PostgreSQL** - Banco de dados
+- **JWT** - Autenticação
+- **bcryptjs** - Hash de senhas
+- **TypeScript** - Linguagem principal
 
-```bash
-$ npm install
-```
+## 🚀 Instalação e Configuração
 
-## Compile and run the project
+### Pré-requisitos
+
+- Node.js (versão 18 ou superior)
+- PostgreSQL
+- npm ou yarn
+
+### 1. Clone o repositório
 
 ```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+git clone <url-do-repositorio>
+cd vistorias-api
 ```
 
-## Run tests
+### 2. Instale as dependências
 
 ```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+npm install
 ```
 
-## Deployment
+### 3. Configure as variáveis de ambiente
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+Crie um arquivo `.env` na raiz do projeto:
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+```env
+DATABASE_URL="postgresql://usuario:senha@localhost:5432/vistorias_db"
+JWT_SECRET=SEU-SECRET-JWT
+```
+
+### 4. Configure o banco de dados
 
 ```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+# Gerar o cliente Prisma
+npx prisma generate
+
+# Executar as migrações
+npx prisma migrate dev
+
+# (Opcional) Visualizar o banco no Prisma Studio
+npx prisma studio
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+### 5. Execute os seeds (dados de teste)
 
-## Resources
+```bash
+npm run seed
+```
 
-Check out a few resources that may come in handy when working with NestJS:
+Isso criará:
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+- 1 usuário admin
+- 2 usuários inspetores
+- 10 veículos
+- 20 vistorias distribuídas entre os status
 
-## Support
+### 6. Inicie a aplicação
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+```bash
+# Desenvolvimento
+npm run start:dev
 
-## Stay in touch
+# Produção
+npm run build
+npm run start:prod
+```
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+A API estará disponível em `http://localhost:8000`
 
-## License
+## 📚 Documentação da API
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+### Autenticação
+
+#### Registrar usuário
+
+```http
+POST /auth/register
+Content-Type: application/json
+
+{
+  "name": "Nome do Usuário",
+  "email": "usuario@email.com",
+  "password": "123456",
+  "role": "INSPECTOR" // opcional, padrão: USER
+}
+```
+
+#### Login
+
+```http
+POST /auth/login
+Content-Type: application/json
+
+{
+  "email": "usuario@email.com",
+  "password": "123456"
+}
+```
+
+#### Refresh Token
+
+```http
+POST /auth/refresh
+Content-Type: application/json
+
+{
+  "refreshToken": "seu-refresh-token"
+}
+```
+
+### Veículos
+
+#### Listar veículos
+
+```http
+GET /vehicles
+Authorization: Bearer <token>
+```
+
+#### Criar veículo
+
+```http
+POST /vehicles
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "nome": "Civic 2020",
+  "placa": "ABC-1234",
+  "marca": "Honda",
+  "modelo": "Civic",
+  "ano": 2020,
+  "proprietario": "João da Silva"
+}
+```
+
+#### Atualizar veículo
+
+```http
+PUT /vehicles/:id
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "nome": "Civic 2021",
+  "marca": "Honda"
+}
+```
+
+#### Deletar veículo
+
+```http
+DELETE /vehicles/:id
+Authorization: Bearer <token>
+```
+
+### Vistorias
+
+#### Listar vistorias
+
+```http
+GET /inspections?status=PENDENTE&inspectorId=123&from=2024-01-01&to=2024-12-31
+Authorization: Bearer <token>
+```
+
+#### Criar vistoria
+
+```http
+POST /inspections
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "titulo": "Vistoria de Segurança",
+  "descricao": "Vistoria completa do veículo",
+  "vehicleId": "vehicle-id",
+  "inspectorId": "inspector-id",
+  "items": [
+    {
+      "key": "freios",
+      "status": "APROVADO",
+      "comment": "Sistema funcionando perfeitamente"
+    },
+    {
+      "key": "pneus",
+      "status": "REPROVADO",
+      "comment": "Pneus carecas"
+    }
+  ]
+}
+```
+
+#### Atualizar status da vistoria
+
+```http
+PATCH /inspections/:id/status
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "status": "APROVADA"
+}
+```
+
+#### Finalizar vistoria
+
+```http
+PUT /inspections/:id/complete
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "observacoes": "Vistoria concluída com sucesso"
+}
+```
+
+### Relatórios
+
+#### Relatório geral
+
+```http
+GET /reports/overview?from=2024-01-01&to=2024-12-31
+Authorization: Bearer <token>
+```
+
+#### Métricas por inspetor
+
+```http
+GET /reports/by-inspector
+Authorization: Bearer <token>
+```
+
+#### Exportar vistorias (CSV)
+
+```http
+GET /reports/export/inspections?from=2024-01-01&to=2024-12-31
+Authorization: Bearer <token>
+```
+
+#### Exportar inspetores (CSV)
+
+```http
+GET /reports/export/inspectors
+Authorization: Bearer <token>
+```
+
+## 🔑 Credenciais de Teste
+
+Após executar os seeds, você pode usar estas credenciais:
+
+- **Admin:** `admin@vistorias.com` / `123456`
+- **Inspetor 1:** `inspector1@vistorias.com` / `123456`
+- **Inspetor 2:** `inspector2@vistorias.com` / `123456`
+
+## 🏗️ Estrutura do Projeto
+
+```
+src/
+├── modules/
+│   ├── auth/           # Autenticação e autorização
+│   ├── vehicles/       # Gestão de veículos
+│   ├── inspections/    # Gestão de vistorias
+│   └── reports/        # Relatórios e métricas
+├── shared/
+│   ├── decorators/     # Decorators customizados
+│   ├── guards/         # Guards de autenticação
+│   ├── interfaces/     # Interfaces TypeScript
+│   ├── prisma/         # Configuração do Prisma
+│   └── types/          # Tipos e enums
+└── seeds/              # Seeds para dados de teste
+```
+
+## 📊 Status das Vistorias
+
+- **PENDENTE** - Vistoria criada, aguardando início
+- **EM_ANDAMENTO** - Vistoria em execução
+- **APROVADA** - Vistoria concluída com aprovação
+- **REPROVADA** - Vistoria concluída com reprovação
+- **CANCELADA** - Vistoria cancelada
+
+## 🔍 Status dos Itens do Checklist
+
+- **APROVADO** - Item aprovado na vistoria
+- **REPROVADO** - Item reprovado na vistoria
+- **NAO_APLICAVEL** - Item não aplicável
+
+## 👥 Roles de Usuário
+
+- **ADMIN** - Acesso total ao sistema
+- **INSPECTOR** - Pode criar e gerenciar vistorias
+- **USER** - Acesso limitado (padrão)
+
+## 🧪 Scripts Disponíveis
+
+```bash
+# Desenvolvimento
+npm run start:dev
+
+# Build
+npm run build
+
+# Produção
+npm run start:prod
+
+# Seeds
+npm run seed
+
+# Prisma
+npx prisma generate
+npx prisma migrate dev
+npx prisma studio
+```
+
+## 🐛 Troubleshooting
+
+### Erro de conexão com banco
+
+- Verifique se o PostgreSQL está rodando
+- Confirme as credenciais no `.env`
+- Execute `npx prisma migrate dev`
+
+
+### Erro de permissão
+
+- Verifique se o usuário tem o role correto
+- Use as credenciais de teste dos seeds

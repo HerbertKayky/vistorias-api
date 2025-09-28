@@ -1,11 +1,12 @@
 import { Module } from '@nestjs/common';
 import { VehiclesController } from './controllers/vehicles.controller';
-import { 
-  CreateVehicleUseCase, 
-  GetVehiclesUseCase, 
-  GetVehicleByIdUseCase, 
-  UpdateVehicleUseCase, 
-  DeleteVehicleUseCase 
+import {
+  CreateVehicleUseCase,
+  GetVehiclesUseCase,
+  GetVehicleByIdUseCase,
+  GetVehicleWithVistoriasCountUseCase,
+  UpdateVehicleUseCase,
+  DeleteVehicleUseCase,
 } from './use-cases/vehicle.use-cases';
 
 @Module({
@@ -14,9 +15,9 @@ import {
     CreateVehicleUseCase,
     GetVehiclesUseCase,
     GetVehicleByIdUseCase,
+    GetVehicleWithVistoriasCountUseCase,
     UpdateVehicleUseCase,
     DeleteVehicleUseCase,
   ],
 })
 export class VehiclesModule {}
-
